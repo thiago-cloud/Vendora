@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Photon</title>
+    <title>Vendora</title>
+    <meta charset="UTF-8">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="./../public/css/photon.css">
+    <link rel="stylesheet" href="./../public/css/style.css">
 
     <!-- Electron Javascript -->
     <!--<script src="app.js" charset="utf-8"></script>-->
@@ -12,12 +14,64 @@
 
   <body>
     <div class="window">
+        <header class="toolbar toolbar-header">
+            <h1 class="title">Sistema de Gerenciamento de Vendas</h1>
+            <div class="toolbar-actions">
+                <div class="btn-group">
+                  <button class="btn btn-default">
+                    <span class="icon icon-home"></span>
+                  </button>
+                  <button class="btn btn-default">
+                    <span class="icon icon-folder"></span>
+                  </button>
+                  <button class="btn btn-default active">
+                    <span class="icon icon-cloud"></span>
+                  </button>
+                  <button class="btn btn-default">
+                    <span class="icon icon-popup"></span>
+                  </button>
+                  <button class="btn btn-default">
+                    <span class="icon icon-shuffle"></span>
+                  </button>
+                </div>
+            
+                <button class="btn btn-default">
+                  <span class="icon icon-home icon-text"></span>
+                  Filters
+                </button>
+            
+                <button class="btn btn-default btn-dropdown pull-right">
+                  <span class="icon icon-megaphone"></span>
+                </button>
+              </div>
+        </header>
         <div class="window-content">
           <div class="pane-group">
-            <div class="pane-mini sidebar">...</div>
-            <div class="pane">...</div>
+            <div class="pane-sm sidebar">Lorem, ipsum dolor sit amet consectetur adipisicing elit. 
+                Culpa consectetur optio sequi libero quaerat! Accusantium,est earum. Ab, eligendi! 
+                Commodi rem rerum dignissimos eum nisi quidem, dolor facere nobis quo!</div>
+            <div class="pane">
+                <form action="" class="pane-body">
+                    <h3>
+                        Cadastro de Clientes
+                    </h3>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="nome"placeholder="Nome">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="cpf" placeholder="CPF">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" id="telefone" placeholder="Telefone">
+                    </div>
+                    <button type="button" id="cadastrar" class="btn btn-positive">Cadastrar</button>
+                </form>
+            </div>
           </div>
         </div>
+        <footer class="toolbar toolbar-footer">
+            <h1 class="title">Footer</h1>
+        </footer>
       </div>
   </body>
 </html>
