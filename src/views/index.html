@@ -50,22 +50,29 @@
             <div class="pane-sm sidebar">Lorem, ipsum dolor sit amet consectetur adipisicing elit. 
                 Culpa consectetur optio sequi libero quaerat! Accusantium,est earum. Ab, eligendi! 
                 Commodi rem rerum dignissimos eum nisi quidem, dolor facere nobis quo!</div>
-            <div class="pane">
-                <form action="" class="pane-body" id="cadastro-cliente">
-                    <h3>
-                        Cadastro de Clientes
-                    </h3>
-                    <div class="form-group">
-                        <input type="text" class="form-control" id="nome"placeholder="Nome">
-                    </div>
-                    <div class="form-group">
-                        <input type="text" class="form-control" id="cpf" placeholder="CPF">
-                    </div>
-                    <div class="form-group">
-                        <input type="text" class="form-control" id="telefone" placeholder="Telefone">
-                    </div>
-                    <button type="button" id="cadastrar" class="btn btn-positive">Cadastrar</button>
-                </form>
+            <div id="app" class="pane">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                Nome
+                            </th>
+                            <th>
+                                CPF
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="cliente in clientes">
+                            <td>
+                                {{  cliente.nome }}
+                            </td>
+                            <td>
+                                {{ cliente.cpf }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
           </div>
         </div>
@@ -74,5 +81,52 @@
         </footer>
       </div>
   </body>
-  <script src="./../../renderer.js"></script>
+  <script>
+    // Importa a função createApp do Vue 3, usada para criar a aplicação
+    const { createApp } = require('vue');
+
+    // Importa o LokiJS, um banco de dados em memória baseado em documentos (tipo MongoDB)
+    const loki = require('lokijs');
+
+    // Importa o módulo fs (file system) do Node.js, usado para ler arquivos
+    const fs = require('fs');
+
+    // Importa o módulo path para lidar com caminhos de arquivos de forma segura entre sistemas
+    const path = require('path');
+
+    // Cria o caminho absoluto até o arquivo db.json (banco de dados local)
+    const dbPath = path.join(__dirname, './../../db.json');
+
+    // Cria uma nova instância do banco Loki
+    const db = new loki('db.json');
+
+    // Lê o conteúdo do arquivo db.json como texto
+    const rawJson = fs.readFileSync(dbPath, 'utf8');
+
+    // Carrega esse conteúdo JSON na instância do LokiJS
+    db.loadJSON(rawJson);
+
+    // Obtém a coleção "clientes" do banco de dados (como se fosse uma tabela)
+    const clientesCollection = db.getCollection('clientes');
+
+    // Se a coleção existir, busca todos os registros (clientes); senão, retorna array vazio
+    const clientesData = clientesCollection ? clientesCollection.find() : [];
+
+    // Cria o app Vue 3 com o método createApp
+    const app = createApp({
+        // Define os dados reativos do app — no caso, o array de clientes
+        data() {
+            return {
+                clientes: clientesData
+            };
+        },
+        // Quando o app estiver montado, mostra os dados dos clientes no console
+        mounted() {
+            console.log("Clientes carregados:", this.clientes);
+        }
+    });
+
+    // Monta o app Vue no elemento HTML com id="app"
+    app.mount('#app');
+  </script>
 </html>
