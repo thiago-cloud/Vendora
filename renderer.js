@@ -41,8 +41,10 @@ ready(function () {
 
     let data = {
       nome: document.querySelector('#nome').value,
+      sobrenome: document.querySelector('#sobrenome').value,
       cpf: document.querySelector('#cpf').value,
-      telefone: document.querySelector('#telefone').value
+      telefone: document.querySelector('#telefone').value,
+      email: document.querySelector('#email').value
     };
 
     clientes.insert(data);
