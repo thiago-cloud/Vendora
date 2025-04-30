@@ -7,40 +7,41 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="./../public/css/photon.css">
     <link rel="stylesheet" href="./../public/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Electron Javascript -->
     <!--<script src="app.js" charset="utf-8"></script>-->
   </head>
 
   <body>
-    <div class="window">
+    <div class="window" id="app">
         <header class="toolbar toolbar-header">
             <h1 class="title">Sistema de Gerenciamento de Vendas</h1>
             <div class="toolbar-actions">
                 <div class="btn-group">
-                  <button class="btn btn-default">
-                    <span class="icon icon-home"></span>
+                  <button class="btn btn-default" title="Home">
+                    <span class="icon icon-home" ></span>
                   </button>
-                  <button class="btn btn-default">
+                  <button class="btn btn-default" title="Exportar">
                     <span class="icon icon-folder"></span>
                   </button>
-                  <button class="btn btn-default active">
+                  <!--<button class="btn btn-default active">
                     <span class="icon icon-cloud"></span>
-                  </button>
-                  <button class="btn btn-default">
+                  </button>-->
+                  <!--<button class="btn btn-default">
                     <span class="icon icon-popup"></span>
                   </button>
                   <button class="btn btn-default">
                     <span class="icon icon-shuffle"></span>
-                  </button>
+                  </button>-->
                 </div>
             
-                <button class="btn btn-default">
+                <button class="btn btn-default" title="Filtrar">
                   <span class="icon icon-home icon-text"></span>
-                  Filters
+                  Filtros
                 </button>
             
-                <button class="btn btn-default btn-dropdown pull-right">
+                <button title="Notificações" class="btn btn-default btn-dropdown pull-right">
                   <span class="icon icon-megaphone"></span>
                 </button>
               </div>
@@ -50,7 +51,22 @@
             <div class="pane-sm sidebar">Lorem, ipsum dolor sit amet consectetur adipisicing elit. 
                 Culpa consectetur optio sequi libero quaerat! Accusantium,est earum. Ab, eligendi! 
                 Commodi rem rerum dignissimos eum nisi quidem, dolor facere nobis quo!</div>
-            <div id="app" class="pane">
+            <div class="pane">
+                <button @click="createClient()" id="cadastrarCliente" type="button" class="btn btn-positive">
+                    <i class="fas fa-user-plus"></i> Cadastrar Cliente
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-box-open"></i> Cadastrar Produtos
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fa-solid fa-hand-holding-dollar"></i> Vendas
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fa-solid fa-tags"></i> Produtos
+                </button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fa-solid fa-user-tie"></i> Clientes
+                </button>
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -58,10 +74,19 @@
                                 Nome
                             </th>
                             <th>
+                                Sobrenome
+                            </th>
+                            <th>
                                 CPF
                             </th>
                             <th>
                                 Telefone
+                            </th>
+                            <th>
+                                Email
+                            </th>
+                            <th>
+                                
                             </th>
                         </tr>
                     </thead>
@@ -71,10 +96,24 @@
                                 {{  cliente.nome }}
                             </td>
                             <td>
+                                {{ cliente.sobrenome }}
+                            </td>
+                            <td>
                                 {{ cliente.cpf }}
                             </td>
                             <td>
                                 {{ cliente.telefone }}
+                            </td>
+                            <td>
+                                {{ cliente.email }}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-primary" @click="editClient(cliente)">
+                                    Editar
+                                </button>
+                                <button type="button" class="btn btn-negative">
+                                    Excluir
+                                </button>
                             </td>
                         </tr>
                     </tbody>
@@ -85,26 +124,37 @@
         <footer class="toolbar toolbar-footer">
             <h1 class="title">Footer</h1>
         </footer>
-      </div>
-      <div id="modal">
-        <div class="wrap">
-            <form action="" class="pane-body" id="cadastro-cliente">
-                <h3>
-                    Cadastro de Clientes
-                </h3>
-                <div class="form-group">
-                    <input type="text" class="form-control" id="nome"placeholder="Nome">
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" id="cpf" placeholder="CPF">
-                </div>
-                <div class="form-group">
-                    <input type="text" class="form-control" id="telefone" placeholder="Telefone">
-                </div>
-                <button type="button" class="btn btn-primary">Cancelar</button>
-                <button type="button" id="cadastrar" class="btn btn-positive">Cadastrar</button>
-            </form>
-        </div>
+        <div id="modal" v-if="openModal">
+            <div class="wrap" >
+                <form action="" class="pane-body" id="cadastro-cliente">
+                    <h3 v-if="mode=='cadastro'">
+                        Cadastrar Cliente
+                    </h3>
+                    <h3 v-if="mode=='editar'">
+                        Editar Cliente
+                    </h3>
+                    <div class="form-group">
+                        <input type="text" v-model="client.nome" class="form-control" id="nome"placeholder="Nome">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" v-model="client.sobrenome" class="form-control" id="Sobrenome" placeholder="Sobrenome">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" v-model="client.cpf" class="form-control" id="cpf" placeholder="CPF">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" v-model="client.telefone"class="form-control" id="telefone" placeholder="Telefone">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" v-model="client.email"class="form-control" id="email" placeholder="Email">
+                    </div>
+                    <button @click="closeModal()" type="button" id="cancelarEditar" class="btn btn-primary defaultButton">
+                        Cancelar     
+                    </button>
+                    <button type="button" @click="newClientOrUpdate" id="salvarEditar" class="btn btn-negative">Salvar</button>
+                </form>
+            </div>
+          </div>
       </div>
   </body>
   <script>
@@ -143,8 +193,70 @@
         // Define os dados reativos do app — no caso, o array de clientes
         data() {
             return {
-                clientes: clientesData
+                clientes: clientesData,
+                openModal: false,
+                mode: '',
+                client: {
+                    nome: '',
+                    cpf: '',
+                    telefone: '',
+                    email:''
+                }
             };
+        },
+
+        methods: {
+            editClient: function(client) {
+                this.mode = 'editar';
+                this.openModal = true;
+                // Garante que estamos trabalhando com o documento completo do LokiJS
+                this.client = clientesCollection.findOne({ '$loki': client.$loki });
+            },
+
+            createClient:function(){
+                this.mode="cadastro",
+                this.openModal=true,
+                this.client={
+                    nome:'',
+                    sobrenome:'',
+                    cpf:'',
+                    telefone:'',
+                    email:''
+                }
+            },
+
+            newClientOrUpdate: function() {
+                // Verifica se estamos no modo de cadastro ou edição
+                if (this.mode === 'cadastro') {
+                    // Adiciona novo cliente à coleção LokiJS
+                    clientesCollection.insert(this.client);
+                    
+                    // Atualiza os dados reativos do Vue
+                    this.clientes = clientesCollection.find();
+                } else if (this.mode === 'editar') {
+                    // Atualiza o cliente existente na coleção LokiJS
+                    const clienteAtualizado = clientesCollection.findOne({ '$loki': this.client.$loki });
+                    Object.assign(clienteAtualizado, this.client);
+                    clientesCollection.update(clienteAtualizado);
+                }
+                
+                // Salva as alterações no arquivo db.json
+                fs.writeFileSync(dbPath, JSON.stringify(db));
+                
+                // Fecha o modal
+                this.closeModal();
+                
+                // Atualiza a lista de clientes reativa
+                this.clientes = clientesCollection.find();
+            },
+
+            closeModal(){
+                this.openModal = false
+            },
+
+            closeModal() {
+                this.openModal = false
+            }
         },
         // Quando o app estiver montado, mostra os dados dos clientes no console
         mounted() {
