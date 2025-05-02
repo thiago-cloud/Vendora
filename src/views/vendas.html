@@ -44,16 +44,18 @@
                 Commodi rem rerum dignissimos eum nisi quidem, dolor facere nobis quo!
             </div>-->
             <div class="pane">
-                <button @click="createProduct()" type="button" class="btn btn-primary">
-                    <i class="fas fa-box-open"></i> 
-                    Cadastrar Produtos
+                <button @click="createVenda()" type="button" class="btn btn-primary">
+                    <i class="fa-solid fa-hand-holding-dollar"></i> Nova Venda
                 </button>
-                <h3 class="nav-group-title" style="text-align: center; width: 100%;">Produtos</h3>
+                <h3 class="nav-group-title" style="text-align: center; width: 100%;">Vendas</h3>
                 <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>
-                                Nome
+                                Cliente
+                            </th>
+                            <th>
+                                Produto
                             </th>
                             <th>
                                 Preço
@@ -67,18 +69,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="produto in produtos">
+                        <tr v-for="venda in vendas">
                             <td>
-                                {{  produto.nome }}
+                                {{  venda.cliente }}
                             </td>
                             <td>
-                                R$ {{ produto.preco }}
+                                {{ venda.produto }}
                             </td>
                             <td>
-                                {{ produto.qtd }}
+                               R$ {{ venda.preco }}
                             </td>
                             <td>
-                                <button type="button" class="btn btn-primary" @click="editProduct(produto)">
+                                {{ venda.qtd }}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-primary" @click="editVenda(venda)">
                                     Editar
                                 </button>
                                 <button type="button" class="btn btn-negative">
@@ -95,29 +100,32 @@
             <h1 class="title">Footer</h1>
         </footer>
         <!-- Modal de Cadastro de Produtos -->
-        <div id="modal-produto" v-if="openModal">
+        <div id="modal-produto" v-if="openModalVenda">
             <div class="modal-container">
                 <div class="modal-content">
-                    <h3>{{ mode === 'cadastro' ? 'Cadastrar' : 'Editar' }} Produto</h3>
+                    <h3>{{ mode === 'cadastro' ? 'Cadastrar' : 'Editar' }} Venda</h3>
                     
                     <div class="form-group">
-                        <label>Nome</label>
-                        <input v-model="product.nome" id="produto-nome" type="text" class="form-control">
+                        <label>Cliente</label>
+                        <input v-model="sales.cliente" id="venda-cliente" type="text" class="form-control">
                     </div>
-                    
+                    <div class="form-group">
+                        <label>Produto</label>
+                        <input v-model="sales.produto"  id="venda-produto" type="text" class="form-control">
+                    </div>
                     <div class="form-group">
                         <label>Preço</label>
-                        <input v-model="product.preco"  id="produto-preco" type="number" class="form-control">
+                        <input v-model="sales.preco"  id="venda-preco" type="number" class="form-control">
                     </div>
                     
                     <div class="form-group">
                         <label>Quantidade</label>
-                        <input v-model="product.qtd" id="produto-quantidade" type="number" class="form-control">
+                        <input v-model="sales.qtd" id="venda-quantidade" type="number" class="form-control">
                     </div>
                     
                     <div class="modal-actions">
-                        <button @click="closeModal()" class="btn btn-primary">Cancelar</button>
-                        <button @click="newProductOrUpdate()" id="cadastrar-produto" class="btn btn-positive">
+                        <button @click="closeModalVenda()" class="btn btn-primary">Cancelar</button>
+                        <button @click="newVendaOrUpdate()" id="cadastrar-venda" class="btn btn-positive">
                             {{ mode === 'cadastro' ? 'Cadastrar' : 'Salvar' }}
                         </button>
                     </div>
@@ -144,8 +152,8 @@
     else console.log("Arquivo db.json não encontrado ou vazio. Criando nova instância...");
 
     // Tenta obter a coleção de produtos ou usa lista vazia
-    let produtosCollection = db.getCollection('produtos');
-    const produtosData = produtosCollection ? produtosCollection.find() : [];
+    let vendasCollection = db.getCollection('vendas');
+    const vendasData = vendasCollection ? vendasCollection.find() : [];
 
     // Inicialização da aplicação Vue
     const app = createApp({
@@ -153,11 +161,12 @@
 
             return {
 
-            produtos: produtosData,              // Lista dos produtos
-            openModal: false,                    // Controle do modal
-            mode: '',                            // Modo: 'cadastro' ou 'editar'
-            product: { 
-                nome: '',
+            vendas: vendasData,         // Lista dos produtos
+            openModalVenda: false,     // Controle do modal
+            mode: '',                 // Modo: 'cadastro' ou 'editar'
+            sales: { 
+                cliente: '',
+                produto: '',
                 preco: '',
                 qtd: 0 } // Produto atual
                 
@@ -167,65 +176,66 @@
         methods: {
 
             // Abre o modal para cadastro
-            createProduct() {
+            createVenda() {
                 this.mode = 'cadastro';
-                this.openModal = true;
-                this.resetProduct();// Limpa os campos
+                this.openModalVenda = true;
+                this.resetVenda();// Limpa os campos
             },
 
             // Abre o modal para edição
-            editProduct(produto) {
+            editVenda(venda) {
                 this.mode = 'editar';
-                this.openModal = true;
+                this.openModalVenda = true;
                 
-                const produtosCollection = db.getCollection('produtos');
+                const vendasCollection = db.getCollection('vendas');
                 
-                if (produtosCollection) {
+                if (vendasCollection) {
                     // ... pega todas as propriedades do objeto e espalha em novo objeto
-                    this.product = { ...produtosCollection.findOne({ '$loki': produto.$loki }) };
+                    this.sales = { ...vendasCollection.findOne({ '$loki': venda.$loki }) };
                 }
             },
 
             // Cadastra novo produto ou atualiza existente
-            newProductOrUpdate() {
+            newVendaOrUpdate() {
 
-                let produtosCollection = db.getCollection('produtos');
+                let vendasCollection = db.getCollection('vendas');
 
                 // Se a coleção não existir, cria e salva
-                if (!produtosCollection) {
-                    produtosCollection = db.addCollection('produtos');
+                if (!vendasCollection) {
+                    vendasCollection = db.addCollection('vendas');
                     db.saveDatabase();
                 }
 
                 if (this.mode === 'cadastro') {
-                    produtosCollection.insert(this.product);   // Insere novo produto
+                    vendasCollection.insert(this.sales);   // Insere novo produto
 
                 } else if (this.mode === 'editar') {
-                    const existente = produtosCollection.findOne({ '$loki': this.product.$loki });
+                    const existente = vendasCollection.findOne({ '$loki': this.sales.$loki });
                     
                     if (existente) {
-                    Object.assign(existente, this.product); // Atualiza dados
-                    produtosCollection.update(existente);
+                        Object.assign(existente, this.sales); // Atualiza dados
+                        vendasCollection.update(existente);
                     }
             }
 
                 // Salva e atualiza a lista reativa
                 db.saveDatabase(err => {
                     if (err) return console.error("Erro ao salvar:", err);
-                    this.produtos = produtosCollection.find();
-                    this.closeModal();// Fecha o modal
+                    this.vendas = vendasCollection.find();
+                    this.closeModalVenda();// Fecha o modal
                 });
             },
 
             // Fecha o modal
-            closeModal() {
-                this.openModal = false;
+            closeModalVenda() {
+                this.openModalVenda = false;
             },
 
             // Reseta o produto para o estado inicial
-            resetProduct() {
-                this.product = { 
-                    nome: '', 
+            resetVenda() {
+                this.sales = { 
+                    cliente: '', 
+                    produto: '',
                     preco: '', 
                     qtd: 0 
                 };
@@ -234,8 +244,8 @@
 
             // Quando o app é montado, carrega a lista de produtos
             mounted() {
-                const produtosCollection = db.getCollection('produtos');
-                if (produtosCollection) this.produtos = produtosCollection.find();
+                const vendasCollection = db.getCollection('vendas');
+                if (vendasCollection) this.vendas = vendasCollection.find();
             }
 
         })

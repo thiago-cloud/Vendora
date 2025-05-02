@@ -9,64 +9,76 @@
     <link rel="stylesheet" href="./../public/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-    <!-- Electron Javascript -->
-    <!--<script src="app.js" charset="utf-8"></script>-->
   </head>
 
   <body>
     <div class="window" id="app">
-        <header class="toolbar toolbar-header">
+        <!--<header class="toolbar toolbar-header">
             <h1 class="title">Sistema de Gerenciamento de Vendas</h1>
             <div class="toolbar-actions">
                 <div class="btn-group">
-                  <button class="btn btn-default" title="Home">
+                  <button src="./index.html" class="btn btn-default" title="Home">
                     <span class="icon icon-home" ></span>
                   </button>
                   <button class="btn btn-default" title="Exportar">
                     <span class="icon icon-folder"></span>
                   </button>
-                  <!--<button class="btn btn-default active">
-                    <span class="icon icon-cloud"></span>
-                  </button>-->
-                  <!--<button class="btn btn-default">
-                    <span class="icon icon-popup"></span>
+                  <button class="btn btn-default" title="Filtrar">
+                    <span class="icon icon-home icon-text"></span>
+                    Filtros
                   </button>
-                  <button class="btn btn-default">
-                    <span class="icon icon-shuffle"></span>
-                  </button>-->
+                  <h3 class="nav-group-title">Clientes</h3>
                 </div>
-            
-                <button class="btn btn-default" title="Filtrar">
-                  <span class="icon icon-home icon-text"></span>
-                  Filtros
-                </button>
-            
                 <button title="Notificações" class="btn btn-default btn-dropdown pull-right">
                   <span class="icon icon-megaphone"></span>
                 </button>
               </div>
+        </header>-->
+        <header class="toolbar toolbar-header">
+            <h1 class="title">Sistema de Gerenciamento de Vendas</h1>
+            <div class="toolbar-actions">
+                <ul class="list-group" style="display: flex; justify-content: space-between; width: 100%;">
+                    <li class="list-group-header" style="display: flex; width: 100%;">
+                        <div class="btn-group">
+                            <button src="./index.html" class="btn btn-default" title="Home">
+                                <span class="icon icon-home"></span>
+                            </button>
+                            <button class="btn btn-default" title="Exportar">
+                                <span class="icon icon-folder"></span>
+                            </button>
+                        </div>
+                        
+                        <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+                            <input style="width:50vw; height:46px;" class="form-control" type="text" placeholder="Search for someone">
+                        </div>
+                        
+                        <button title="Notificações" class="btn btn-default btn-dropdown pull-right">
+                            <span class="icon icon-megaphone"></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
         </header>
         <div class="window-content">
           <div class="pane-group">
-            <div class="pane-sm sidebar">Lorem, ipsum dolor sit amet consectetur adipisicing elit. 
+            <!--<div class="pane-sm sidebar">Lorem, ipsum dolor sit amet consectetur adipisicing elit. 
                 Culpa consectetur optio sequi libero quaerat! Accusantium,est earum. Ab, eligendi! 
-                Commodi rem rerum dignissimos eum nisi quidem, dolor facere nobis quo!</div>
+                Commodi rem rerum dignissimos eum nisi quidem, dolor facere nobis quo!
+            </div>-->
             <div class="pane">
                 <button @click="createClient()" id="cadastrarCliente" type="button" class="btn btn-positive">
                     <i class="fas fa-user-plus"></i> Cadastrar Cliente
                 </button>
-                <button type="button" class="btn btn-primary">
-                    <i class="fas fa-box-open"></i> Cadastrar Produtos
-                </button>
-                <button type="button" class="btn btn-primary">
-                    <i class="fa-solid fa-hand-holding-dollar"></i> Vendas
-                </button>
-                <button type="button" class="btn btn-primary">
+                <a href="./vendas.html" class="btn btn-primary">
+                    <i class="fa-solid fa-chart-line"></i> Vendas
+                </a>
+                <a href="./produtos.html" class="btn btn-primary">
                     <i class="fa-solid fa-tags"></i> Produtos
-                </button>
-                <button type="button" class="btn btn-primary">
+                </a>
+                <!--<a href="./index.html" class="btn btn-primary">
                     <i class="fa-solid fa-user-tie"></i> Clientes
-                </button>
+                </a>-->
+                <h3 class="nav-group-title" style="text-align: center; width: 100%;">Clientes</h3>
                 <table class="table table-striped">
                     <thead>
                         <tr>
@@ -124,6 +136,7 @@
         <footer class="toolbar toolbar-footer">
             <h1 class="title">Footer</h1>
         </footer>
+        <!--Modal Cliente-->
         <div id="modal" v-if="openModal">
             <div class="wrap" >
                 <form action="" class="pane-body" id="cadastro-cliente">
@@ -134,7 +147,7 @@
                         Editar Cliente
                     </h3>
                     <div class="form-group">
-                        <input type="text" v-model="client.nome" class="form-control" id="nome"placeholder="Nome">
+                        <input type="text" v-model="client.nome" class="form-control" id="nome" placeholder="Nome">
                     </div>
                     <div class="form-group">
                         <input type="text" v-model="client.sobrenome" class="form-control" id="Sobrenome" placeholder="Sobrenome">
@@ -151,32 +164,24 @@
                     <button @click="closeModal()" type="button" id="cancelarEditar" class="btn btn-primary defaultButton">
                         Cancelar     
                     </button>
-                    <button type="button" @click="newClientOrUpdate" id="salvarEditar" class="btn btn-negative">Salvar</button>
+                    <button type="button" @click="newClientOrUpdate" id="salvarEditar" class="btn btn-positive">Cadastrar</button>
                 </form>
             </div>
           </div>
       </div>
   </body>
   <script>
-    // Importa a função createApp do Vue 3, usada para criar a aplicação
-    const { createApp } = require('vue');
-
-    // Importa o LokiJS, um banco de dados em memória baseado em documentos (tipo MongoDB)
-    const loki = require('lokijs');
-
-    // Importa o módulo fs (file system) do Node.js, usado para ler arquivos
-    const fs = require('fs');
-
-    // Importa o módulo path para lidar com caminhos de arquivos de forma segura entre sistemas
-    const path = require('path');
+    // Importações necessárias
+    const { createApp } = require('vue');      // Vue 3 para criar o app
+    const loki = require('lokijs');            // Banco de dados em memória
+    const fs = require('fs');                  // Módulo de sistema de arquivos
+    const path = require('path');              // Módulo de manipulação de caminhos
 
     // Cria o caminho absoluto até o arquivo db.json (banco de dados local)
     const dbPath = path.join(__dirname, './../../db.json');
 
-    // Cria uma nova instância do banco Loki
+    // Criação do banco Loki e carregamento do arquivo db.json
     const db = new loki('db.json');
-
-    // Lê o conteúdo do arquivo db.json como texto
     const rawJson = fs.readFileSync(dbPath, 'utf8');
 
     // Carrega esse conteúdo JSON na instância do LokiJS
@@ -185,8 +190,10 @@
     // Obtém a coleção "clientes" do banco de dados (como se fosse uma tabela)
     const clientesCollection = db.getCollection('clientes');
 
-    // Se a coleção existir, busca todos os registros (clientes); senão, retorna array vazio
+    // Se a coleção existir(não for null ou undefined), busca todos os registros (clientes); senão, retorna array vazio
     const clientesData = clientesCollection ? clientesCollection.find() : [];
+    // Tenta obter a coleção de produtos ou usa lista vazia
+
 
     // Cria o app Vue 3 com o método createApp
     const app = createApp({
@@ -201,7 +208,7 @@
                     cpf: '',
                     telefone: '',
                     email:''
-                }
+                },
             };
         },
 
@@ -248,15 +255,13 @@
                 
                 // Atualiza a lista de clientes reativa
                 this.clientes = clientesCollection.find();
+                console.log(this.clientes = clientesCollection.find())
             },
 
             closeModal(){
                 this.openModal = false
             },
 
-            closeModal() {
-                this.openModal = false
-            }
         },
         // Quando o app estiver montado, mostra os dados dos clientes no console
         mounted() {

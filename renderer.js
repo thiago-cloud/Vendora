@@ -2,6 +2,7 @@ var loki = require('lokijs');
 
 let clientes; // agora acessível globalmente
 let produtos;
+let vendas;
 
 
 // Cria o banco de dados
@@ -21,6 +22,7 @@ function databaseInitialize() {
     // Garantir que as coleções existam
     let clientes = db.getCollection('clientes');
     let produtos = db.getCollection('produtos');
+    let vendas = db.getCollection('vendas')
   
     if (!clientes) {
       clientes = db.addCollection('clientes');
@@ -29,6 +31,10 @@ function databaseInitialize() {
     if (!produtos) {
       produtos = db.addCollection('produtos');
     }
+
+    if (!vendas) {
+        vendas = db.addCollection('vendas');
+      }
     
     return db; // Retorna o banco inicializado
     
@@ -95,6 +101,37 @@ ready(function () {
       };
       
       produtos.insert(produtoData);
+      
+      db.saveDatabase(function(err) {
+        if (err) {
+          console.error("Erro ao salvar produto:", err);
+          alert("Erro ao salvar o produto!");
+        } else {
+          alert("Produto cadastrado com sucesso!");
+          document.querySelector("#form-produto").reset();
+        }
+      });
+    });
+  });
+
+  ready(function () {
+    // Adicione este listener para o cadastro de produtos
+    document.querySelector('#cadastrar-venda').addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      if (!vendas) {
+        alert("Banco de dados ainda não carregado.");
+        return;
+      }
+      
+      let vendaData = {
+        cliente: document.querySelector('#venda-cliente').value,
+        produto: document.querySelector('#venda-produto').value,
+        preco: parseFloat(document.querySelector('#venda-preco').value),
+        quantidade: parseInt(document.querySelector('#venda-quantidade').value)
+      };
+      
+      vendas.insert(vendaData);
       
       db.saveDatabase(function(err) {
         if (err) {
