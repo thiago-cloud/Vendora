@@ -1,23 +1,38 @@
 var loki = require('lokijs');
 
 let clientes; // agora acessível globalmente
+let produtos;
+
 
 // Cria o banco de dados
-var db = new loki('db.json', {
+const db = new loki('db.json', {
   autoload: true,
   autoloadCallback: databaseInitialize,
   autosave: true,
-  autosaveInterval: 4000
+  autosaveInterval: 4000,
+  persistenceMethod: 'fs'
 });
+
+// Torna o banco acessível globalmente (Vue acessa via window.db)
+window.db = db;
 
 // Função chamada após o banco ser carregado
 function databaseInitialize() {
-  clientes = db.getCollection('clientes');
-
-  if (clientes === null) {
-    clientes = db.addCollection('clientes');
+    // Garantir que as coleções existam
+    let clientes = db.getCollection('clientes');
+    let produtos = db.getCollection('produtos');
+  
+    if (!clientes) {
+      clientes = db.addCollection('clientes');
+    }
+    
+    if (!produtos) {
+      produtos = db.addCollection('produtos');
+    }
+    
+    return db; // Retorna o banco inicializado
+    
   }
-}
 
 // Função utilitária para executar código após DOM pronto
 function ready(fn) {
@@ -60,3 +75,35 @@ ready(function () {
     });
   });
 });
+
+ready(function () {
+    // Seu código existente para clientes...
+    
+    // Adicione este listener para o cadastro de produtos
+    document.querySelector('#cadastrar-produto').addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      if (!produtos) {
+        alert("Banco de dados ainda não carregado.");
+        return;
+      }
+      
+      let produtoData = {
+        nome: document.querySelector('#produto-nome').value,
+        preco: parseFloat(document.querySelector('#produto-preco').value),
+        quantidade: parseInt(document.querySelector('#produto-quantidade').value)
+      };
+      
+      produtos.insert(produtoData);
+      
+      db.saveDatabase(function(err) {
+        if (err) {
+          console.error("Erro ao salvar produto:", err);
+          alert("Erro ao salvar o produto!");
+        } else {
+          alert("Produto cadastrado com sucesso!");
+          document.querySelector("#form-produto").reset();
+        }
+      });
+    });
+  });
