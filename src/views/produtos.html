@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Vendora</title>
+    <meta charset="UTF-8">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="./../public/css/photon.css">
+    <link rel="stylesheet" href="./../public/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+  </head>
+  <body>
+    <div class="window" id="app">
+        <header class="toolbar toolbar-header">
+            <h1 class="title">Sistema de Gerenciamento de Vendas</h1>
+            <div class="toolbar-actions">
+                <ul class="list-group" style="display: flex; justify-content: space-between; width: 100%;">
+                    <li class="list-group-header" style="display: flex; width: 100%;">
+                        <div class="btn-group">
+                            <a href="./index.html" class="btn btn-default" title="Home">
+                                <span class="icon icon-home"></span>
+                            </a>
+                            <button class="btn btn-default" title="Exportar">
+                                <span class="icon icon-folder"></span>
+                            </button>
+                        </div>
+                        
+                        <div style="position: absolute; left: 50%; transform: translateX(-50%);">
+                            <input style="width:50vw; height:46px;" class="form-control" type="text" placeholder="Search for someone">
+                        </div>
+                        
+                        <button title="Notificações" class="btn btn-default btn-dropdown pull-right">
+                            <span class="icon icon-megaphone"></span>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </header>
+        <div class="window-content">
+          <div class="pane-group">
+            <!--<div class="pane-sm sidebar">Lorem, ipsum dolor sit amet consectetur adipisicing elit. 
+                Culpa consectetur optio sequi libero quaerat! Accusantium,est earum. Ab, eligendi! 
+                Commodi rem rerum dignissimos eum nisi quidem, dolor facere nobis quo!
+            </div>-->
+            <div class="pane">
+                <button @click="createProduct()" type="button" class="btn btn-primary">
+                    <i class="fas fa-box-open"></i> 
+                    Cadastrar Produtos
+                </button>
+                <h3 class="nav-group-title" style="text-align: center; width: 100%;">Produtos</h3>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>
+                                Nome
+                            </th>
+                            <th>
+                                Preço
+                            </th>
+                            <th>
+                                Quantidade
+                            </th>
+                            <th>
+                                
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr v-for="produto in produtos">
+                            <td>
+                                {{  produto.nome }}
+                            </td>
+                            <td>
+                                {{ produto.preco }}
+                            </td>
+                            <td>
+                                {{ produto.qtd }}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-primary" @click="editProduct(produto)">
+                                    Editar
+                                </button>
+                                <button type="button" class="btn btn-negative">
+                                    Excluir
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        </div>
+        <footer class="toolbar toolbar-footer">
+            <h1 class="title">Footer</h1>
+        </footer>
+        <!-- Modal de Cadastro de Produtos -->
+        <div id="modal-produto" v-if="openModal">
+            <div class="modal-container">
+                <div class="modal-content">
+                    <h3>{{ mode === 'cadastro' ? 'Cadastrar' : 'Editar' }} Produto</h3>
+                    
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input v-model="product.nome" id="produto-nome" type="text" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Preço</label>
+                        <input v-model="product.preco"  id="produto-preco" type="number" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Quantidade</label>
+                        <input v-model="product.qtd" id="produto-quantidade" type="number" class="form-control">
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button @click="closeModal()" class="btn btn-primary">Cancelar</button>
+                        <button @click="newProductOrUpdate()" id="cadastrar-produto" class="btn btn-positive">
+                            {{ mode === 'cadastro' ? 'Cadastrar' : 'Salvar' }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+  </body>
+  <script>
+    // Importações necessárias
+    const { createApp } = require('vue');      // Vue 3 para criar o app
+    const loki = require('lokijs');            // Banco de dados em memória
+    const fs = require('fs');                  // Módulo de sistema de arquivos
+    const path = require('path');              // Módulo de manipulação de caminhos
+
+    // Caminho absoluto do banco de dados JSON
+    const dbPath = path.join(__dirname, './../../db.json');
+
+    // Criação do banco Loki e carregamento do arquivo db.json
+    const db = new loki('db.json');
+    const rawJson = fs.readFileSync(dbPath, 'utf8');
+
+    if (rawJson) db.loadJSON(rawJson);         // Carrega o banco se o arquivo existir
+    else console.log("Arquivo db.json não encontrado ou vazio. Criando nova instância...");
+
+    // Tenta obter a coleção de produtos ou usa lista vazia
+    let produtosCollection = db.getCollection('produtos');
+    const produtosData = produtosCollection ? produtosCollection.find() : [];
+
+    // Inicialização da aplicação Vue
+    const app = createApp({
+        data() {
+
+            return {
+
+            produtos: produtosData,              // Lista dos produtos
+            openModal: false,                    // Controle do modal
+            mode: '',                            // Modo: 'cadastro' ou 'editar'
+            product: { 
+                nome: '',
+                preco: '',
+                qtd: 0 } // Produto atual
+            };
+        },
+
+        methods: {
+
+            // Abre o modal para cadastro
+            createProduct() {
+                this.mode = 'cadastro';
+                this.openModal = true;
+                this.resetProduct();// Limpa os campos
+            },
+
+            // Abre o modal para edição
+            editProduct(produto) {
+                this.mode = 'editar';
+                this.openModal = true;
+                
+                const produtosCollection = db.getCollection('produtos');
+                
+                if (produtosCollection) {
+                    // ... pega todas as propriedades do objeto e espalha em novo objeto
+                    this.product = { ...produtosCollection.findOne({ '$loki': produto.$loki }) };
+                }
+            },
+
+            // Cadastra novo produto ou atualiza existente
+            newProductOrUpdate() {
+                
+                let produtosCollection = db.getCollection('produtos');
+
+                // Se a coleção não existir, cria e salva
+                if (!produtosCollection) {
+                    produtosCollection = db.addCollection('produtos');
+                    db.saveDatabase();
+                }
+
+                if (this.mode === 'cadastro') {
+                    produtosCollection.insert(this.product);   // Insere novo produto
+
+                } else if (this.mode === 'editar') {
+                    const existente = produtosCollection.findOne({ '$loki': this.product.$loki });
+                    
+                    if (existente) {
+                    Object.assign(existente, this.product); // Atualiza dados
+                    produtosCollection.update(existente);
+                    }
+            }
+
+                // Salva e atualiza a lista reativa
+                db.saveDatabase(err => {
+                    if (err) return console.error("Erro ao salvar:", err);
+                    this.produtos = produtosCollection.find();
+                    this.closeModal();// Fecha o modal
+                });
+            },
+
+            // Fecha o modal
+            closeModal() {
+                this.openModal = false;
+            },
+
+            // Reseta o produto para o estado inicial
+            resetProduct() {
+                this.product = { 
+                    nome: '', 
+                    preco: '', 
+                    qtd: 0 
+                };
+            }
+        },
+
+            // Quando o app é montado, carrega a lista de produtos
+            mounted() {
+                const produtosCollection = db.getCollection('produtos');
+                if (produtosCollection) this.produtos = produtosCollection.find();
+            }
+
+        })
+
+    app.mount('#app'); // Monta o app no elemento com id "app"
+  </script>
+</html>
